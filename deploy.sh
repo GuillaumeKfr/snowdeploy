@@ -172,7 +172,7 @@ prepare_version() {
     local version_folder
 
     if [[ -z ${tgt_version} ]]; then
-        tgt_version=$(__select_subdir "$PROG_DIR/scripts")
+        tgt_version=$(__select_subdir "$PROG_DIR/../scripts")
     fi
 
     logging::info "Preparing [$tgt_version] in [$env]"
