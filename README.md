@@ -8,6 +8,7 @@ Syntax: deploy.sh action [-e env] [-v] [-y] [-h]
 
 Parameters:
 action  Action to perform. Possible values:
+         init: Setup the deployment structures in Snowflake
          prep[are]: Prepare the scripts files for a given version
          [prepare_]diff: Prepare the scripts files based on last saved state
          exec[ute]: Run the prepared scripts

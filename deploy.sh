@@ -6,6 +6,7 @@
 #/
 #/ Parameters:
 #/   action  Action to perform. Possible values:
+#/             init: Setup the deployment structures in Snowflake
 #/             prep[are]: Prepare the scripts files for a given version
 #/             [prepare_]diff: Prepare the scripts files based on last saved state
 #/             exec[ute]: Run the prepared scripts
@@ -40,7 +41,7 @@ usage() {
 }
 
 # Initialize sqlite state database
-__init() {
+init() {
     local query
 
     mkdir -p "$(dirname "$state_file")"
@@ -325,10 +326,9 @@ main() {
         env=$(__get_curr_branch_name)
     fi
 
-    __init "$state_file"
-
     # Run action
     case "$action" in
+        init) init "$state_file" ;;
         diff | prepare_diff) prepare_diff ;;
         prep | prepare) prepare_version ;;
         exec | execute) execute ;;
