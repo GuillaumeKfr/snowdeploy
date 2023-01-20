@@ -53,11 +53,11 @@ init() {
             , primary key(filekey)
         );"
 
-    snowsql -c "${db}_${env}" \
-        -o exit_on_error=true \
-        -o friendly=false \
-        -o quiet=true \
-        -q "$query"
+    if snowsql -c "${db}_${env}" -o exit_on_error=true -o friendly=false -o quiet=true -q "$query"; then
+        logging::success "Database initialized"
+    else
+        logging::die "Failed to initialize"
+    fi
 }
 
 __cleanup() {
