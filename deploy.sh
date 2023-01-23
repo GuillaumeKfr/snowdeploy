@@ -85,7 +85,7 @@ __build_global_file() {
 __execute_global_file() {
     local log_file choice
 
-    log_file=deploy_$(date "+%Y%m%d_%H%M%S").log
+    log_file="${PROG_DIR}/deploy_$(date "+%Y%m%d_%H%M%S").log"
 
     if [[ $ask_for_confirmation == true ]]; then
         read -p "$global_version_file will be executed in $env. Continue (y/n)? " -n 1 -r choice
