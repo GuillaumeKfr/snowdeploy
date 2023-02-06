@@ -154,13 +154,9 @@ __maintain_state() {
 
         cat << EOF >> "$update_file"
             insert into tech.deploy_state
-            values (
-                select
-                    '$filekey' as filekey
-                    , '$hash' as hash
-                    , current_timestamp() as run_time
-                    , 'success' as status
-            ) src
+            (filekey, hash, run_time, status)
+            values
+            ( '$filekey', '$hash', current_timestamp(), 'success')
             ;
 EOF
     done
