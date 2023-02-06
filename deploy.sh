@@ -47,10 +47,11 @@ init() {
     mkdir -p "$(dirname "$state_file")"
 
     query="create table if not exists tech.deploy_state (
-            filekey varchar(255)
-            , hash varchar(32)
-            , run_date date
-            , primary key(filekey)
+            filekey     varchar(255)
+            , hash      varchar(32)
+            , run_time  timestamp
+            , status    varchar(32)
+            , primary key (filekey, run_time)
         );"
 
     if snowsql -c "${db}_${env}" -o exit_on_error=true -o friendly=false -o quiet=true -q "$query"; then
@@ -111,7 +112,15 @@ __execute_global_file() {
 __retrieve_stored_state() {
     logging::info "Retrieving current state"
 
-    query="select array_agg(object_construct(*)) from tech.deploy_state"
+    query="select
+            array_agg(object_construct(*))
+            from
+            (
+                select *
+                from tech.deploy_state
+                qualify rank() over (partition by filekey order by run_time desc) = 1
+            );
+    "
 
     snowsql -c "${db}_${env}" \
         -o exit_on_error=true \
@@ -144,17 +153,15 @@ __maintain_state() {
         hash=$(<"${file}.md5sum")
 
         cat << EOF >> "$update_file"
-            merge into tech.deploy_state
-            using (
+            insert into tech.deploy_state
+            values (
                 select
                     '$filekey' as filekey
                     , '$hash' as hash
-                    , current_date() as current_date
+                    , current_timestamp() as run_time
+                    , 'success' as status
             ) src
-            on src.filekey = deploy_state.filekey
-            when matched then update set hash = src.hash, run_date = src.current_date
-            when not matched then insert (filekey, hash, run_date) values (src.filekey, src.hash, src.current_date)
-                ;
+            ;
 EOF
     done
 
