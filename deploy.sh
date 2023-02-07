@@ -84,10 +84,7 @@ __build_global_file() {
 
 # Execute the SQL file passed with snowsql
 __execute_file() {
-    local log_file choice run_file
-    run_file=$1
-
-    log_file="${PROG_DIR}/deploy_$(date "+%Y%m%d_%H%M%S").log"
+    local choice run_file
 
     if [[ $ask_for_confirmation == true ]]; then
         read -p "$run_file will be executed in $env. Continue (y/n)? " -n 1 -r choice
@@ -103,7 +100,7 @@ __execute_file() {
         esac
     fi
 
-    if snowsql -c "${db}_${env}" -o exit_on_error=true -f "$run_file" | tee "$log_file"; then
+    if snowsql -c "${db}_${env}" -o exit_on_error=true -f "$run_file"; then
         return 0
     else
         return 1
@@ -267,7 +264,7 @@ execute() {
         logging::die "No prepared version found"
     fi
 
-    if ! __execute_file $global_version_file; then
+    if ! __execute_file "$global_version_file"; then
         logging::die "Deployment failed"
     fi
 
